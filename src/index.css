@@ -1,0 +1,121 @@
+:root {
+  --bg-color: #0d1117;
+  --text-color: #c9d1d9;
+  --panel-bg: rgba(22, 27, 34, 0.7);
+  --accent: #58a6ff;
+  --success: #2ea043;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.header {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.scanner-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 4 / 3;
+  background-color: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scanner-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Glassmorphism panel for results */
+.result-panel {
+  margin-top: 2rem;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-panel h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: var(--success);
+}
+
+.jan-code {
+  font-size: 2rem;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* 読み取りガイドライン */
+.scan-guide {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background-color: rgba(0, 255, 0, 0.7);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 1);
+  animation: scan 2s infinite ease-in-out alternate;
+}
+
+@keyframes scan {
+  0% { transform: translateY(-50px); }
+  100% { transform: translateY(50px); }
+}
+
+button.cam-toggle {
+  margin-top: 1rem;
+  padding: 10px 20px;
+  background-color: var(--panel-bg);
+  color: var(--text-color);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+}
+
+button.cam-toggle:hover {
+  background-color: rgba(255,255,255,0.1);
+}
