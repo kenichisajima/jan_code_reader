@@ -14,18 +14,15 @@ function App() {
     const initCamera = async () => {
         try {
             setErrorMessage('');
-            // Safari等で権限リクエストがサイレント失敗するのを防ぐため、事前に明示的にリクエスト
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
 
             const videoInputDevices = await BrowserMultiFormatReader.listVideoInputDevices();
             setDevices(videoInputDevices);
 
             if (videoInputDevices.length > 0) {
-                // ZXing用に一旦ストリームを解放する
                 stream.getTracks().forEach(track => track.stop());
 
                 let targetId = videoInputDevices[0].deviceId;
-                // 名前に "back" や "背面" が含まれるカメラを優先
                 const backCamera = videoInputDevices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('背面'));
                 if (backCamera) {
                     targetId = backCamera.deviceId;
@@ -40,7 +37,6 @@ function App() {
             }
         } catch (err) {
             console.error("Camera init error:", err);
-            // よくあるエラーについてのハンドリング
             if (err.name === 'NotAllowedError') {
                 setErrorMessage("カメラのアクセスが拒否されています。ブラウザの設定（URL横の鍵マーク等）からカメラを「許可」にしてリロードしてください。");
             } else if (err.name === 'NotFoundError') {
@@ -56,16 +52,13 @@ function App() {
     useEffect(() => {
         if (!isCameraActive || !selectedDeviceId || !videoRef.current) return;
 
+        let isCancelled = false;
         let controls = null;
 
         const startDecoding = async () => {
             try {
-                if (codeReaderRef.current) {
-                    codeReaderRef.current.releaseAllStreams();
-                }
-
-                setErrorMessage(''); // スキャン開始前に一旦エラーをリセット
-                controls = await codeReaderRef.current.decodeFromVideoDevice(
+                setErrorMessage('');
+                const newControls = await codeReaderRef.current.decodeFromVideoDevice(
                     selectedDeviceId,
                     videoRef.current,
                     (res, err) => {
@@ -75,19 +68,27 @@ function App() {
                         }
                     }
                 );
+
+                if (isCancelled && newControls && newControls.stop) {
+                    newControls.stop();
+                } else {
+                    controls = newControls;
+                }
             } catch (err) {
-                console.error("Decoding error:", err);
-                setErrorMessage(`スキャンエラー: ${err.message || err}`);
+                if (!isCancelled) {
+                    console.error("Decoding error:", err);
+                    setErrorMessage(`スキャンエラー: ${err.message || err}`);
+                }
             }
         };
 
         startDecoding();
 
         return () => {
+            isCancelled = true;
             if (controls && controls.stop) {
                 controls.stop();
             }
-            codeReaderRef.current.releaseAllStreams();
         };
     }, [isCameraActive, selectedDeviceId]);
 
